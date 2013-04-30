@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>examples.maven</groupId>
   <artifactId>CLTutorial</artifactId>
-  <name>JavaCL Tutorial</name>
+  <name>OpenCL_Demo</name>
   <version>1.0-SNAPSHOT</version>
   <build>
     <plugins>

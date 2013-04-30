@@ -71,9 +71,24 @@ public class BorisCL {
     
     public static void main(String[] args) throws IOException {
         s = new Simulation(new Settings());
+        Boris b = new Boris();
         int n = s.particles.size() * PF_SIZE;
         int step = 2;
+        long t1, t2;
         
+        System.out.println("--------------ORIGINAL VERSION---------------");
+        t1 = System.currentTimeMillis();
+        for(int j = 0; j < s.particles.size(); j++){
+            b.step(s.particles.get(j), new SimpleGridForce(), 0.5);
+        }
+        t2 = System.currentTimeMillis();
+        for (int i=0; i < 10; i++) {
+            System.out.println("out[" + i + "] = " + s.particles.get(i).getX());
+	}
+        System.out.println("Elapsed time: " + (t2-t1) + "ms");
+        
+        
+        System.out.println("\n------------PARALLEL VERSION----------------");
         CLContext context = JavaCL.createBestContext();
         CLQueue queue = context.createDefaultQueue();
         ByteOrder byteOrder = context.getByteOrder();
@@ -92,13 +107,16 @@ public class BorisCL {
         DemoKernel kernels = new DemoKernel(context);
         int[] globalSizes = new int[] { n };
         CLEvent initEvt = kernels.boris_init(queue, inPar, outPar, n, globalSizes, null);
+        t1 = System.currentTimeMillis();
         CLEvent borisEvt = kernels.boris_step(queue, inPar, outPar, n, globalSizes, null, initEvt);
-        
+        t2 = System.currentTimeMillis();
         //get output
         Pointer<Double> outPtr = outPar.read(queue, borisEvt); 
         
         //print results
         for (int i = 0; i < 10 * PF_SIZE; i += PF_SIZE)
-          System.out.println("out[" + i/PF_SIZE + "] = " + outPtr.get(i));
+            System.out.println("out[" + i/PF_SIZE + "] = " + outPtr.get(i));
+        System.out.println("Elapsed time: " + (t2-t1) + "ms");
+        
     }
 }
