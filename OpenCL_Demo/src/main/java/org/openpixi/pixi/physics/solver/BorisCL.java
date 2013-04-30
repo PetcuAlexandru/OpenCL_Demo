@@ -18,6 +18,7 @@ import org.openpixi.pixi.physics.Settings;
 import org.openpixi.pixi.physics.Simulation;
 import org.openpixi.pixi.physics.force.Force;
 import org.openpixi.pixi.physics.force.SimpleGridForce;
+import static org.openpixi.pixi.physics.solver.BorisCL.inParticles;
 import static org.openpixi.pixi.ui.MainBatch.s;
 
 
@@ -28,6 +29,9 @@ public class BorisCL {
     
     //Particle + Force size(no of fields)
     static int PF_SIZE = 26;
+    
+    //Number of simulated steps
+    static int steps = 500;
     
     /*
      * Converts an array of Particle objects into an array
@@ -79,9 +83,12 @@ public class BorisCL {
         System.out.println("--------------ORIGINAL VERSION---------------");
         t1 = System.currentTimeMillis();
         for(int j = 0; j < s.particles.size(); j++){
-            b.step(s.particles.get(j), new SimpleGridForce(), 0.5);
+            for (int i = 0; i < steps; i++) {
+                b.step(s.particles.get(j), new SimpleGridForce(), 0.5);
+            }
         }
         t2 = System.currentTimeMillis();
+        
         for (int i=0; i < 10; i++) {
             System.out.println("out[" + i + "] = " + s.particles.get(i).getX());
 	}
@@ -105,11 +112,16 @@ public class BorisCL {
         
         //call the kernel
         DemoKernel kernels = new DemoKernel(context);
+        CLEvent borisEvt = null;
         int[] globalSizes = new int[] { n };
         CLEvent initEvt = kernels.boris_init(queue, inPar, outPar, n, globalSizes, null);
+        
         t1 = System.currentTimeMillis();
-        CLEvent borisEvt = kernels.boris_step(queue, inPar, outPar, n, globalSizes, null, initEvt);
+        for (int i = 0; i < steps; i++) {
+            borisEvt = kernels.boris_step(queue, inPar, outPar, n, globalSizes, null, initEvt);
+        }
         t2 = System.currentTimeMillis();
+        
         //get output
         Pointer<Double> outPtr = outPar.read(queue, borisEvt); 
         
