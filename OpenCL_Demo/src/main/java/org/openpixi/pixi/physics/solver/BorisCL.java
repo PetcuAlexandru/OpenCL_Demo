@@ -31,7 +31,7 @@ public class BorisCL {
     static int PF_SIZE = 26;
     
     //Number of simulated steps
-    static int steps = 500;
+    static int steps = 100;
     
     /*
      * Converts an array of Particle objects into an array
@@ -79,7 +79,8 @@ public class BorisCL {
         int n = s.particles.size() * PF_SIZE;
         int step = 2;
         long t1, t2;
-        
+        particles = new ArrayList(s.particles);
+
         System.out.println("--------------ORIGINAL VERSION---------------");
         t1 = System.currentTimeMillis();
         for(int j = 0; j < s.particles.size(); j++){
@@ -100,7 +101,7 @@ public class BorisCL {
         CLQueue queue = context.createDefaultQueue();
         ByteOrder byteOrder = context.getByteOrder();
         
-        particles = s.particles;
+//        particles = s.particles;
         f = new SimpleGridForce();
         clConversion(n, byteOrder);
         

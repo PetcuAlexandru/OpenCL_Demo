@@ -15,7 +15,8 @@ __kernel void boris_step(__global double* particles, __global double* out, int n
     int i = get_global_id(0) * PF_SIZE;
     if (i >= n)
         return;
-    out[i] = particles[i]; 
+
+//    out[i] = particles[i]; 
     double getPositionComponentofForceX = particles[i + 22];
     double getPositionComponentofForceY = particles[i + 23];
     double getBz = particles[i + 21]; 
